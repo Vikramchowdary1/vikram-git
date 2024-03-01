@@ -1,9 +1,60 @@
-1.txt
-2.txt
-3.txt
-4.txt
-5.txt
-add
-divide
-multiply
-hippopo
+
+# Set drive letter to monitor
+$driveLetter = "C:"
+# Set email details
+$emailTo = "recipient@example.com"
+$emailFrom = "sender@example.com"
+$subject = "Drive Space Alert - $driveLetter"
+
+# Function to send email
+function Send-Email {
+    param(
+        [string]$to,
+        [string]$from,
+        [string]$subject,
+        [string]$body
+    )
+    
+    $smtpServer = "your_smtp_server"
+    
+    # Create mail message object
+    $msg = New-Object Net.Mail.MailMessage
+    $msg.To.Add($to)
+    $msg.From = $from
+    $msg.Subject = $subject
+    $msg.Body = $body
+
+    # Create SMTP client
+    $smtp = New-Object Net.Mail.SmtpClient($smtpServer)
+    $smtp.Send($msg)
+}
+
+# Get drive information
+$drive = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='$driveLetter'"
+
+# Calculate free space percentage
+$freeSpacePercentage = [Math]::Round(($drive.FreeSpace / $drive.Size) * 100, 2)
+
+# Display drive usage information in the console
+Write-Host "Drive: $($drive.DeviceID)"
+Write-Host "Total Size: $($drive.Size / 1GB) GB"
+Write-Host "Free Space: $($drive.FreeSpace / 1GB) GB"
+Write-Host "Free Space Percentage: $freeSpacePercentage%"
+
+# Check if free space is below threshold (just for console demonstration)
+$threshold = 10
+if ($freeSpacePercentage -lt $threshold) {
+    Write-Host "Warning: Free space is below threshold!"
+    $body = "Drive $driveLetter is running out of space. Free space available: $freeSpacePercentage%"
+    Send-Email -to $emailTo -from $emailFrom -subject $subject -body $body
+} else {
+    Write-Host "Free space is above threshold."
+}
+# Check if free space is below threshold
+if ($freeSpacePercentage -lt $threshold) {
+    $body = "Drive $driveLetter is running out of space. Free space available: $freeSpacePercentage%"
+    Send-Email -to $emailTo -from $emailFrom -subject $subject -body $body
+}
+
+# Display console notification
+Write-Host "Drive Space Alert script completed."
