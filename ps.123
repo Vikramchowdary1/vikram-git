@@ -16,6 +16,7 @@ $url = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$rep
 
 # Define PR body
 $body = @{
+
     sourceRefName = "refs/heads/$sourceBranch"
     targetRefName = "refs/heads/$targetBranch"
     title = $title
@@ -27,3 +28,21 @@ $response = Invoke-RestMethod -Uri $url -Method Post -Headers @{Authorization = 
 
 # Output PR URL
 Write-Output "Pull request created: $($response.url)"
+
+
+
+
+
+
+
+
+
+variables:
+  organization: 'YourOrganization'
+  project: 'YourProject'
+  repositoryId: 'YourRepositoryId'
+  sourceBranch: 'YourSourceBranch'
+  targetBranch: 'YourTargetBranch'
+  prTitle: 'YourPRTitle'
+  prDescription: 'YourPRDescription'
+  pat: 'YourPersonalAccessToken'
