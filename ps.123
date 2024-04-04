@@ -1,0 +1,29 @@
+param (
+    [string]$organization = "YourOrganization",
+    [string]$project = "YourProject",
+    [string]$repositoryId = "YourRepositoryId",
+    [string]$sourceBranch = "YourSourceBranch",
+    [string]$targetBranch = "YourTargetBranch",
+    [string]$title = "YourPRTitle",
+    [string]$description = "YourPRDescription"
+)
+
+# Define personal access token (PAT)
+$pat = "YourPersonalAccessToken"
+
+# Define REST API URL
+$url = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repositoryId/pullrequests?api-version=6.1-preview.1"
+
+# Define PR body
+$body = @{
+    sourceRefName = "refs/heads/$sourceBranch"
+    targetRefName = "refs/heads/$targetBranch"
+    title = $title
+    description = $description
+} | ConvertTo-Json
+
+# Create PR using REST API
+$response = Invoke-RestMethod -Uri $url -Method Post -Headers @{Authorization = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$pat"))} -Body $body -ContentType "application/json"
+
+# Output PR URL
+Write-Output "Pull request created: $($response.url)"
